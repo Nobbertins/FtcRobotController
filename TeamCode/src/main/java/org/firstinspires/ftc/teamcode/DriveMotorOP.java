@@ -63,12 +63,17 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
 
+//define OP
 @TeleOp(name="Basic: Omni Linear OpMode", group="Linear OpMode")
 //@Disabled
+
+//define OP class
 public class DriveMotorOP extends LinearOpMode {
 
-    // Declare OpMode members for each of the 4 motors.
+    // declare time counter variable
     private ElapsedTime runtime = new ElapsedTime();
+
+    //declare al DCMotors
     private DcMotor leftFrontDrive = null;
     private DcMotor leftBackDrive = null;
     private DcMotor rightFrontDrive = null;
@@ -101,11 +106,14 @@ public class DriveMotorOP extends LinearOpMode {
         // when you first test your robot, push the left joystick forward and observe the direction the wheels turn.
         // Reverse the direction (flip FORWARD <-> REVERSE ) of any wheel that runs backward
         // Keep testing until ALL the wheels move the robot forward when you push the left joystick forward.
+
+        //set all default directions
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
         leftBackDrive.setDirection(DcMotor.Direction.FORWARD);
         rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
         intakeMotor.setDirection(DcMotor.Direction.FORWARD);
+
         // Wait for the game to start (driver presses PLAY)
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -115,6 +123,7 @@ public class DriveMotorOP extends LinearOpMode {
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
+            //max variable will be used later -> calculated then compared
             double max;
 
             // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
@@ -135,6 +144,7 @@ public class DriveMotorOP extends LinearOpMode {
             max = Math.max(max, Math.abs(leftBackPower));
             max = Math.max(max, Math.abs(rightBackPower));
 
+            //compare max to 1.0 which is 100%
             if (max > 1.0) {
                 leftFrontPower  /= max;
                 rightFrontPower /= max;
@@ -142,40 +152,24 @@ public class DriveMotorOP extends LinearOpMode {
                 rightBackPower  /= max;
             }
 
-            // This is test code:
-            //
-            // Uncomment the following code to test your motor directions.
-            // Each button should make the corresponding motor run FORWARD.
-            //   1) First get all the motors to take to correct positions on the robot
-            //      by adjusting your Robot Configuration if necessary.
-            //   2) Then make sure they run in the correct direction by modifying the
-            //      the setDirection() calls above.
-            // Once the correct motors move in the correct direction re-comment this code.
-
-            /*
-            leftFrontPower  = gamepad1.x ? 1.0 : 0.0;  // X gamepad
-            leftBackPower   = gamepad1.a ? 1.0 : 0.0;  // A gamepad
-            rightFrontPower = gamepad1.y ? 1.0 : 0.0;  // Y gamepad
-            rightBackPower  = gamepad1.b ? 1.0 : 0.0;  // B gamepad
-            */
-
             // Send calculated power to wheels
             leftFrontDrive.setPower(leftFrontPower);
             rightFrontDrive.setPower(rightFrontPower);
             leftBackDrive.setPower(leftBackPower);
             rightBackDrive.setPower(rightBackPower);
+            //both triggers are activated then do nothing to prevent killing the motors
             if(gamepad1.left_trigger>0 && gamepad1.right_trigger>0){
                 extraMotor.setPower(0);
                 oppMotor.setPower(0);
             }
+            //left trigger linear slide go up
             else if(gamepad1.left_trigger>0) {
                 extraMotor.setDirection(DcMotor.Direction.FORWARD);
                 oppMotor.setDirection(DcMotor.Direction.REVERSE);
                 oppMotor.setPower(0.5);
                 extraMotor.setPower(0.5);
-
-                //down
             }
+            //right trigger linear slide go down
             else if(gamepad1.right_trigger>0){
                 extraMotor.setDirection(DcMotor.Direction.REVERSE);
                 oppMotor.setDirection(DcMotor.Direction.FORWARD);
@@ -183,13 +177,16 @@ public class DriveMotorOP extends LinearOpMode {
                 extraMotor.setPower(0.75);
                 //up
             }
+            //otherwise do nothing
             else{
                 extraMotor.setPower(0);
                 oppMotor.setPower(0);
             }
+            //while holding "A" button, run intake motor at full power
             if(gamepad1.a){
                 intakeMotor.setPower(1);
             }
+            //when released stop intake motor
             else{
                 intakeMotor.setPower(0);
             }
