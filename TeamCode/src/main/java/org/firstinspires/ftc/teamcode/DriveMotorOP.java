@@ -33,6 +33,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 /*
@@ -63,6 +64,35 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
 
+/*
+CONTROLLER LAYOUT:
+Two joysticks - driving
+A - run intake motor
+LT - linear slide up
+RT - linear slide down
+Y - toggle slide servos
+B - toggle drop servos
+
+CONFIG MOTOR NAMES:
+Control Hub:
+Motors:
+0 - fl
+1 - fr
+2 - br
+3 - bl
+Servos:
+0 - lslide
+1 - rslide
+2 - ldrop
+3 - rdrop
+4 - deposit
+Expansion Hub:
+Motors:
+0 - extramotor
+1 - oppmotor
+2 - intake
+ */
+
 //define OP
 @TeleOp(name="Basic: Omni Linear OpMode", group="Linear OpMode")
 //@Disabled
@@ -84,6 +114,14 @@ public class DriveMotorOP extends LinearOpMode {
     private DcMotor oppMotor = null;
 
     private DcMotor intakeMotor = null;
+    //declare all servo motors
+    private Servo lslideServo = null;
+
+    private Servo rslideServo = null;
+
+    private Servo ldropServo = null;
+
+    private Servo rdropServo = null;
     @Override
     public void runOpMode() {
 
@@ -96,16 +134,11 @@ public class DriveMotorOP extends LinearOpMode {
         extraMotor = hardwareMap.get(DcMotor.class, "extramotor");
         oppMotor = hardwareMap.get(DcMotor.class, "oppmotor");
         intakeMotor = hardwareMap.get(DcMotor.class, "intake");
-        // ########################################################################################
-        // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
-        // ########################################################################################
-        // Most robots need the motors on one side to be reversed to drive forward.
-        // The motor reversals shown here are for a "direct drive" robot (the wheels turn the same direction as the motor shaft)
-        // If your robot has additional gear reductions or uses a right-angled drive, it's important to ensure
-        // that your motors are turning in the correct direction.  So, start out with the reversals here, BUT
-        // when you first test your robot, push the left joystick forward and observe the direction the wheels turn.
-        // Reverse the direction (flip FORWARD <-> REVERSE ) of any wheel that runs backward
-        // Keep testing until ALL the wheels move the robot forward when you push the left joystick forward.
+        lslideServo = hardwareMap.get(Servo.class, "lslide");
+        rslideServo = hardwareMap.get(Servo.class, "rslide");
+        ldropServo = hardwareMap.get(Servo.class, "ldrop");
+        rdropServo = hardwareMap.get(Servo.class, "rdrop");
+
 
         //set all default directions
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -121,6 +154,12 @@ public class DriveMotorOP extends LinearOpMode {
         waitForStart();
         runtime.reset();
 
+        //initialize servo states
+        boolean slideState = false;
+        boolean yPressed = false;
+
+        boolean dropState = false;
+        boolean bPressed = false;
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             //max variable will be used later -> calculated then compared
@@ -157,6 +196,35 @@ public class DriveMotorOP extends LinearOpMode {
             rightFrontDrive.setPower(rightFrontPower);
             leftBackDrive.setPower(leftBackPower);
             rightBackDrive.setPower(rightBackPower);
+
+            //switch slide servos position on y press
+            if(gamepad1.y) {
+                if (!yPressed) {
+                    slideState = !slideState;
+                    if (slideState) {
+                        lslideServo.setPosition(0);
+                        rslideServo.setPosition(90);
+                    } else {
+                        lslideServo.setPosition(90);
+                        rslideServo.setPosition(0);
+                    }
+                }
+            }
+            yPressed = gamepad1.y;
+            //switch drop servos position on b press
+            if(gamepad1.b) {
+                if (!bPressed) {
+                    dropState = !dropState;
+                    if (dropState) {
+                        ldropServo.setPosition(0);
+                        rdropServo.setPosition(90);
+                    } else {
+                        ldropServo.setPosition(90);
+                        rdropServo.setPosition(0);
+                    }
+                }
+            }
+            bPressed = gamepad1.b;
             //both triggers are activated then do nothing to prevent killing the motors
             if(gamepad1.left_trigger>0 && gamepad1.right_trigger>0){
                 extraMotor.setPower(0);
@@ -192,6 +260,8 @@ public class DriveMotorOP extends LinearOpMode {
             }
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());
+            telemetry.addData("Servo Slide left/Right Position", "%4.2f, %4.2f", lslideServo.getPosition(), rslideServo.getPosition());
+            telemetry.addData("Servo Drop left/Right Position", "%4.2f, %4.2f", ldropServo.getPosition(), rdropServo.getPosition());
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
             telemetry.update();
