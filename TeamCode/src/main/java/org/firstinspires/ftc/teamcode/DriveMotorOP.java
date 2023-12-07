@@ -140,7 +140,7 @@ public class DriveMotorOP extends LinearOpMode {
 
     private Servo depositServo = null;
 
-    private CRServo contServo = null;
+    //private CRServo contServo = null;
     @Override
     public void runOpMode() {
 
@@ -158,7 +158,7 @@ public class DriveMotorOP extends LinearOpMode {
         ldropServo = hardwareMap.get(Servo.class, "ldrop");
         rdropServo = hardwareMap.get(Servo.class, "rdrop");
         depositServo = hardwareMap.get(Servo.class, "deposit");
-        contServo = hardwareMap.crservo.get("contservo");
+        //contServo = hardwareMap.crservo.get("contservo");
 
         //set all default directions
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -232,12 +232,7 @@ public class DriveMotorOP extends LinearOpMode {
             rightFrontDrive.setPower(rightFrontPower);
             leftBackDrive.setPower(leftBackPower);
             rightBackDrive.setPower(rightBackPower);
-            if(gamepad1.x){
-                contServo.setPower(1);
-            }
-            else{
-                contServo.setPower(0);
-            }
+
             //switch slide servos position on y press
             if(gamepad1.y && !yPressed) {
                     slideState = !slideState;
