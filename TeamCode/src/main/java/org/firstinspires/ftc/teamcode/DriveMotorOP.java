@@ -281,7 +281,7 @@ public class DriveMotorOP extends LinearOpMode {
                 }
                 else{
                     intakeMotor.setPower(0);
-                    //intakeMotor.setDirection(DcMotor.Direction.FORWARD);
+                    intakeMotor.setDirection(DcMotor.Direction.FORWARD);
                 }
             }
             //toggle intake
