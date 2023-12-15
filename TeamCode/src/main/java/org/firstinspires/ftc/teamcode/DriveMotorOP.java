@@ -79,6 +79,7 @@ RB - run intake backwards
 Y - toggle slide servos
 B - toggle intake drop servos
 A - toggle deposit servo
+A and X - launch plane
 
 CONFIG MOTOR NAMES:
 Control Hub:
@@ -139,7 +140,7 @@ public class DriveMotorOP extends LinearOpMode {
     private Servo rdropServo = null;
 
     private Servo depositServo = null;
-
+    private Servo launchServo = null;
     //private CRServo contServo = null;
     @Override
     public void runOpMode() {
@@ -158,6 +159,7 @@ public class DriveMotorOP extends LinearOpMode {
         ldropServo = hardwareMap.get(Servo.class, "ldrop");
         rdropServo = hardwareMap.get(Servo.class, "rdrop");
         depositServo = hardwareMap.get(Servo.class, "deposit");
+        launchServo = hardwareMap.get(Servo.class, "launch");
         //contServo = hardwareMap.crservo.get("contservo");
 
         //set all default directions
@@ -243,6 +245,10 @@ public class DriveMotorOP extends LinearOpMode {
                         lslideServo.setPosition(0.6);
                         rslideServo.setPosition(0.1);
                     }
+            }
+            //launch drone
+            if(gamepad1.a & gamepad1.x){
+                launchServo.setPosition(1.0);
             }
             yPressed = gamepad1.y;
             //switch drop servos position on b press
