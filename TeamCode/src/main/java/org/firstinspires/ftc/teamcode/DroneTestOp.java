@@ -192,7 +192,7 @@ public class DroneTestOp extends LinearOpMode {
         boolean runIntakeMotor = false;
         boolean rbPressed = false;
 
-        double servoPosition = 1;
+        double servoPosition = 0.5;
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
