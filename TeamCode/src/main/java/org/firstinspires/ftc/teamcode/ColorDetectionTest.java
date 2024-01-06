@@ -59,6 +59,25 @@ webcam1.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
 
         int color = 1;
         //red = 1, blue = 2
+
+        /*
+        Determine absolute position of marker and return which line the marker is on by testing two cases:
+            -left and middle line visible
+            -right and middle line visible
+            *line positions are ordered as left is closest to back drop when observing from side*
+         */
+        boolean samplingLeft = false;
+        boolean samplingRight = false;
+
+        /*
+        relative locations of the marker based on which side you are viewing it from used to determine absolute position
+         */
+
+        MarkerPosition markerPositionRight = MarkerPosition.UNKOWN;
+        MarkerPosition markerPositionLeft = MarkerPosition.UNKOWN;
+        MarkerPosition absoluteMarkerPosition = MarkerPosition.UNKOWN;
+
+        //still need to implement when to turn on the sampling for the left and right side
         @Override
         public Mat processFrame(Mat input) {
             Imgproc.cvtColor(input, YCbCr, Imgproc.COLOR_RGB2YCrCb);
@@ -78,26 +97,71 @@ webcam1.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             leftavgin = leftavg.val[0];
             rightavgin = rightavg.val[0];
             int sensitivity = 10;
-            //lower -> more sensitive to choosing left or right
-            if(leftavgin - rightavgin < sensitivity && leftavgin - rightavgin > -sensitivity){
-                //nothing detected
-                telemetry.addLine("Nothing or middle");
+
+            //when viewing just left and middle lines
+            if (samplingLeft) {
+                //lower -> more sensitive to choosing left or right
+                if (leftavgin - rightavgin < sensitivity && leftavgin - rightavgin > -sensitivity) {
+                    //nothing detected
+                    telemetry.addLine("Nothing or middle");
+                    markerPositionLeft = MarkerPosition.UNKOWN;
+                } else if (leftavgin > rightavgin) {
+                    //on the left
+                    telemetry.addLine("Left");
+                    markerPositionLeft = MarkerPosition.LEFT;
+                } else {
+                    //on the right
+                    telemetry.addLine("Right");
+                    markerPositionLeft = MarkerPosition.RIGHT;
+                }
             }
-            else if(leftavgin > rightavgin){
-                //on the left
-                telemetry.addLine("Left");
+
+            //when viewing just right and middle lines
+            if (samplingRight){
+                //lower -> more sensitive to choosing left or right
+                if (leftavgin - rightavgin < sensitivity && leftavgin - rightavgin > -sensitivity) {
+                    //nothing detected
+                    telemetry.addLine("Nothing or middle");
+                    markerPositionRight = MarkerPosition.UNKOWN;
+                } else if (leftavgin > rightavgin) {
+                    //on the left
+                    telemetry.addLine("Left");
+                    markerPositionRight = MarkerPosition.LEFT;
+                } else {
+                    //on the right
+                    telemetry.addLine("Right");
+                    markerPositionRight = MarkerPosition.RIGHT;
+                }
             }
-            else{
-                //on the right
-                telemetry.addLine("Right");
+
+            //determine absolute location
+
+            //marker on left line
+            if (markerPositionLeft == MarkerPosition.LEFT && markerPositionRight == MarkerPosition.UNKOWN){
+                absoluteMarkerPosition = MarkerPosition.LEFT;
             }
-            /*
-            telemetry.addData("Leftavgin", leftavgin);
-            telemetry.addData("Rightavgin", rightavgin);
-            telemetry.update();
-             */
+            //marker on right line
+            else if (markerPositionLeft == MarkerPosition.UNKOWN && markerPositionRight == MarkerPosition.RIGHT){
+                absoluteMarkerPosition = MarkerPosition.RIGHT;
+            }
+
+            //marker on middle line
+            else if (markerPositionLeft == MarkerPosition.RIGHT && markerPositionRight == MarkerPosition.LEFT){
+                absoluteMarkerPosition = MarkerPosition.MIDDLE;
+            }
+
+            //not enough or conflicting readings
+            else {
+                absoluteMarkerPosition = MarkerPosition.UNKOWN;
+            }
             return(outPut);
+
         }
+
+
+
+
+
 
     }
 }
