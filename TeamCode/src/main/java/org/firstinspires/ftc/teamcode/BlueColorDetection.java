@@ -1,15 +1,13 @@
 package org.firstinspires.ftc.teamcode;
 
-import android.webkit.WebBackForwardList;
-
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
-import org.opencv.core.Scalar;
 import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -18,7 +16,7 @@ import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
 @Autonomous
-public class ColorDetectionTest extends OpMode {
+public class BlueColorDetection extends OpMode {
     OpenCvWebcam webcam1 = null;
 
     @Override
@@ -26,19 +24,19 @@ public class ColorDetectionTest extends OpMode {
         WebcamName webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId","id",hardwareMap.appContext.getPackageName());
         webcam1 = OpenCvCameraFactory.getInstance().createWebcam(webcamName,cameraMonitorViewId);
-webcam1.setPipeline(new examplePipeline());
+        webcam1.setPipeline(new positionDetectionPipeline());
 
-webcam1.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
-    @Override
-    public void onOpened() {
-        webcam1.startStreaming(640, 360, OpenCvCameraRotation.UPRIGHT);
-    }
+        webcam1.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
+            @Override
+            public void onOpened() {
+                webcam1.startStreaming(640, 360, OpenCvCameraRotation.UPRIGHT);
+            }
 
-    @Override
-    public void onError(int errorCode) {
+            @Override
+            public void onError(int errorCode) {
 
-    }
-});
+            }
+        });
     }
 
     @Override
@@ -48,7 +46,7 @@ webcam1.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
 
     //Camera lens was 12.5cm from right side of tile and at edge of tile when these values were calibrated
 
-    class examplePipeline extends OpenCvPipeline{
+    class positionDetectionPipeline extends OpenCvPipeline {
         Mat YCbCr = new Mat();
         Mat leftCrop;
         Mat rightCrop;
